@@ -1,0 +1,290 @@
+/* ==========================================
+   BOOKINGS PAGE — shared page styles
+   ========================================== */
+
+/* Page title bar */
+.page-title-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.page-title {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #2a3a2a;
+    margin-bottom: 3px;
+}
+
+.page-subtitle {
+    font-size: 13px;
+    color: #7a907a;
+    font-weight: 400;
+}
+
+/* Toolbar */
+.page-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.search-bar {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 9px 14px 9px 36px;
+    border: 1.5px solid #ccdacc;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-family: 'Lato', sans-serif;
+    background: #fff;
+    color: #2a3a2a;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: #2d7a2d;
+    box-shadow: 0 0 0 3px rgba(45,122,45,0.1);
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filters select {
+    padding: 9px 14px;
+    border: 1.5px solid #ccdacc;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 13.5px;
+    font-family: 'Lato', sans-serif;
+    color: #2a3a2a;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%237a907a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+}
+
+.filters select:focus {
+    outline: none;
+    border-color: #2d7a2d;
+}
+
+/* Primary button */
+.btn-primary {
+    background: linear-gradient(135deg, #3a9a3a, #2d7a2d);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 700;
+    font-family: 'Lato', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(45,122,45,0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #4aaa4a, #3a8a3a);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(45,122,45,0.35);
+}
+
+/* Table container */
+.table-container {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+    overflow-x: auto;
+}
+
+.full-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+}
+
+.full-table thead tr {
+    background: linear-gradient(90deg, #2d7a2d, #3a9a3a);
+}
+
+.full-table th {
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+.full-table tbody tr {
+    border-bottom: 1px solid #edf3ed;
+    transition: background 0.1s;
+}
+
+.full-table tbody tr:last-child { border-bottom: none; }
+
+.full-table tbody tr:hover { background: #f5fbf5; }
+
+.full-table td {
+    padding: 11px 14px;
+    color: #2a3a2a;
+    vertical-align: middle;
+}
+
+.id-cell {
+    font-size: 12px;
+    font-weight: 700;
+    color: #7a907a !important;
+    font-family: monospace;
+}
+
+.cost-cell {
+    font-weight: 700;
+    color: #2d7a2d !important;
+}
+
+.customer-cell {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    white-space: nowrap;
+}
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 2px solid #e0ece0;
+}
+
+.av1 { background: linear-gradient(135deg,#7cb87c,#4a8a4a); }
+.av2 { background: linear-gradient(135deg,#8aacca,#4a7aaa); }
+.av3 { background: linear-gradient(135deg,#caa87c,#a07040); }
+.av4 { background: linear-gradient(135deg,#ca8aaa,#a04a7a); }
+.av5 { background: linear-gradient(135deg,#8a9aca,#4a5aaa); }
+.av6 { background: linear-gradient(135deg,#9aca8a,#5aaa4a); }
+
+/* Action buttons */
+.action-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+
+.btn-action {
+    background: #fff;
+    color: #2d7a2d;
+    border: 1.5px solid #b0d0b0;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Lato', sans-serif;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.btn-action:hover {
+    background: #2d7a2d;
+    color: #fff;
+    border-color: #2d7a2d;
+}
+
+.btn-action.approve {
+    background: #2d7a2d;
+    color: #fff;
+    border-color: #2d7a2d;
+}
+
+.btn-action.approve:hover {
+    background: #1e5a1e;
+    border-color: #1e5a1e;
+}
+
+/* Badges */
+.badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 700;
+    display: inline-block;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+
+.badge.pending     { background: #fff3cd; color: #7a5a00; }
+.badge.confirmed   { background: #d1f0ff; color: #0a5070; }
+.badge.completed   { background: #d4edda; color: #155724; }
+.badge.cancelled   { background: #fde8e8; color: #7a1c1c; }
+.badge.active      { background: #d4edda; color: #155724; }
+.badge.inactive    { background: #e8e8e8; color: #4a4a4a; }
+.badge.suspended   { background: #fde8e8; color: #7a1c1c; }
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.page-btn {
+    padding: 8px 14px;
+    border: 1.5px solid #b0d0b0;
+    background: #fff;
+    color: #2d7a2d;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Lato', sans-serif;
+    transition: all 0.15s;
+}
+
+.page-btn:hover {
+    background: #2d7a2d;
+    color: #fff;
+    border-color: #2d7a2d;
+}
+
+.page-btn.active {
+    background: #2d7a2d;
+    color: #fff;
+    border-color: #2d7a2d;
+}

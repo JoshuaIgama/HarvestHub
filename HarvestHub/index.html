@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harvester Rental Admin</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<header class="topnav">
+    <div class="topnav-brand">
+        <div class="brand-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                <path d="M6 24 Q10 14 18 16 Q26 18 30 12" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <circle cx="12" cy="26" r="3" fill="#ffc107"/>
+                <circle cx="24" cy="24" r="3" fill="#ffc107"/>
+                <rect x="8" y="18" width="20" height="6" rx="2" fill="rgba(255,255,255,0.2)" stroke="#fff" stroke-width="1.2"/>
+            </svg>
+        </div>
+        <span class="brand-name">Harvester Rental Admin</span>
+    </div>
+    <nav class="topnav-links">
+        
+    </nav>
+    <div class="topnav-user" id="adminMenuToggle">
+        <div class="user-avatar">
+            <svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#5a8a5a"/><circle cx="16" cy="12" r="5" fill="#fff"/><ellipse cx="16" cy="26" rx="9" ry="6" fill="#fff"/></svg>
+        </div>
+        <span>Admin</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <div class="admin-dropdown" id="adminDropdown">
+            <a href="settings.html" class="dropdown-item">
+                <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 2v2M9 14v2M2 9h2M14 9h2M3.93 3.93l1.41 1.41M12.66 12.66l1.41 1.41M3.93 14.07l1.41-1.41M12.66 5.34l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Settings
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item dropdown-logout">
+                <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M7 3H3a1 1 0 00-1 1v10a1 1 0 001 1h4M12 12l4-3-4-3M16 9H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Log Out
+            </a>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <nav class="sidebar-nav">
+            <a href="index.html" class="sidebar-link active">
+                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1" y="1" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="10" y="1" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="1" y="10" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="10" y="10" width="7" height="7" rx="1.5" fill="currentColor"/></svg></span>
+                Dashboard
+            </a>
+            <a href="bookings.html" class="sidebar-link">
+                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1" y="3" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 1v4M13 1v4M1 8h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+                Bookings
+            </a>
+            <a href="harvesters.html" class="sidebar-link">
+                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="5" cy="13" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="13" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M2 13V7l3-4h6l3 4v1h1a1 1 0 011 1v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                Harvesters
+            </a>
+            <a href="users.html" class="sidebar-link">
+                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M2 17c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+                Customers
+            </a>
+        
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <!-- STAT CARDS -->
+        <section class="stat-cards">
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none"><rect x="2" y="4" width="24" height="20" rx="3" stroke="#2d7a2d" stroke-width="2"/><path d="M8 2v4M20 2v4M2 11h24" stroke="#2d7a2d" stroke-width="2" stroke-linecap="round"/><rect x="7" y="15" width="4" height="4" rx="1" fill="#2d7a2d"/><rect x="13" y="15" width="4" height="4" rx="1" fill="#2d7a2d"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Bookings</span>
+                    <span class="stat-value">128</span>
+                </div>
+                <button class="stat-close">×</button>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none"><circle cx="9" cy="22" r="3" stroke="#e07b00" stroke-width="2"/><circle cx="21" cy="22" r="3" stroke="#e07b00" stroke-width="2"/><path d="M2 22V14l4-8h10l4 6v2h2a2 2 0 012 2v4" stroke="#e07b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Active Rentals</span>
+                    <span class="stat-value">24</span>
+                </div>
+                <button class="stat-close">×</button>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green2">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none"><circle cx="9" cy="22" r="3" stroke="#3a9a3a" stroke-width="2"/><circle cx="21" cy="22" r="3" stroke="#3a9a3a" stroke-width="2"/><path d="M2 22V14l4-8h10l4 6v2h2a2 2 0 012 2v4" stroke="#3a9a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 8v6M11 11h6" stroke="#3a9a3a" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Harvesters Available</span>
+                    <span class="stat-value">15</span>
+                </div>
+                <button class="stat-close">×</button>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon teal">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none"><path d="M8 4h4v4L10 10M16 4h4v4l-2 2" stroke="#2a8a7a" stroke-width="2" stroke-linecap="round"/><rect x="4" y="14" width="20" height="12" rx="2" stroke="#2a8a7a" stroke-width="2"/><path d="M10 19l2 2 6-4" stroke="#2a8a7a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Upcoming Services</span>
+                    <span class="stat-value">5</span>
+                </div>
+                <button class="stat-close">×</button>
+            </div>
+        </section>
+
+        <!-- TABLES ROW -->
+        <div class="tables-row">
+            <div class="table-panel">
+                <div class="panel-header green-header">
+                    <h2>Current Rentals</h2>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Harvester</th>
+                            <th>Location</th>
+                            <th>Rental Period</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><div class="customer-cell"><div class="avatar av1"></div><span>John Carter</span></div></td>
+                            <td>John Deere S780</td>
+                            <td>Kansas, USA</td>
+                            <td>Sept 10 – Sept 15</td>
+                        </tr>
+                        <tr>
+                            <td><div class="customer-cell"><div class="avatar av2"></div><span>Mike Anderson</span></div></td>
+                            <td>Case IH 9250</td>
+                            <td>Iowa, USA</td>
+                            <td>Sept 8 – Sept 12</td>
+                        </tr>
+                        <tr>
+                            <td><div class="customer-cell"><div class="avatar av3"></div><span>Lisa Brown</span></div></td>
+                            <td>CLAAS Lexion 770</td>
+                            <td>Nebraska, USA</td>
+                            <td>Sept 9 – Sept 14</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-panel">
+                <div class="panel-header dark-header">
+                    <h2>Upcoming Bookings</h2>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Harvester</th>
+                            <th>Start Date</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><div class="customer-cell"><div class="avatar av4"></div><span>Sarah Wilson</span></div></td>
+                            <td>New Holland CR9|90</td>
+                            <td>Sept 18, 2023</td>
+                            <td>5 Days</td>
+                        </tr>
+                        <tr>
+                            <td><div class="customer-cell"><div class="avatar av5"></div><span>David Smith</span></div></td>
+                            <td>John Deere T560</td>
+                            <td>Sept 20, 2023</td>
+                            <td>3 Days</td>
+                        </tr>
+                        <tr>
+                            <td><div class="customer-cell"><div class="avatar av6"></div><span>Tom Harris</span></div></td>
+                            <td>Case IH Axial-Flow 8240</td>
+                            <td>Sept 22, 2023</td>
+                            <td>4 Days</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    document.querySelectorAll('.stat-close').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const card = btn.closest('.stat-card');
+            card.style.transition = 'all 0.2s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
+            setTimeout(() => card.style.display = 'none', 200);
+        });
+    });
+
+    // Admin dropdown
+    const adminToggle = document.getElementById('adminMenuToggle');
+    const adminDropdown = document.getElementById('adminDropdown');
+    adminToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        adminDropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', () => {
+        adminDropdown.classList.remove('open');
+    });
+</script>
+</body>
+</html>
