@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HarvestHub — Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/admin.css">
+    <style>
+        /* ===== POPUP / MODAL STYLES ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(20,40,20,0.55);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 8px 40px rgba(30,70,30,0.22);
+            width: 490px;
+            max-width: 95vw;
+            overflow: hidden;
+            animation: modalIn 0.22s ease;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(-24px) scale(0.97); }
+            to   { opacity: 1; transform: none; }
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #2d7a2d 0%, #3a9a3a 100%);
+            color: #fff;
+            padding: 18px 22px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-header h3 { margin: 0; font-size: 1.08rem; font-family: 'Merriweather', serif; font-weight: 700; }
+        .modal-badge {
+            font-size: 0.72rem;
+            background: rgba(255,255,255,0.18);
+            border-radius: 20px;
+            padding: 2px 10px;
+            margin-left: 10px;
+            font-family: 'Lato', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.6rem;
+            cursor: pointer;
+            line-height: 1;
+            opacity: 0.8;
+            padding: 0;
+            transition: opacity 0.15s;
+        }
+        .modal-close:hover { opacity: 1; }
+        .modal-body { padding: 22px 24px; }
+        .modal-field { margin-bottom: 14px; }
+        .modal-field label { display: block; font-size: 0.75rem; font-weight: 700; color: #4a6a4a; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .modal-field .modal-val { font-size: 0.96rem; color: #1a3a1a; font-weight: 600; }
+        .modal-fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+        .modal-divider { border: none; border-top: 1px solid #e8f0e8; margin: 14px 0; }
+        .modal-footer { padding: 16px 24px 20px; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #e8f0e8; flex-wrap: wrap; }
+
+        .btn-approve-modal {
+            background: linear-gradient(135deg, #2d7a2d, #3a9a3a);
+            color: #fff; border: none; border-radius: 8px; padding: 9px 18px;
+            font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: 'Lato', sans-serif;
+            display: flex; align-items: center; gap: 6px; transition: opacity 0.15s, transform 0.12s;
+        }
+        .btn-approve-modal:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-pending-modal {
+            background: linear-gradient(135deg, #e07b00, #f59a00);
+            color: #fff; border: none; border-radius: 8px; padding: 9px 18px;
+            font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: 'Lato', sans-serif;
+            display: flex; align-items: center; gap: 6px; transition: opacity 0.15s, transform 0.12s;
+        }
+        .btn-pending-modal:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-reject-modal {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff; border: none; border-radius: 8px; padding: 9px 18px;
+            font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: 'Lato', sans-serif;
+            display: flex; align-items: center; gap: 6px; transition: opacity 0.15s, transform 0.12s;
+        }
+        .btn-reject-modal:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-cancel-modal {
+            background: #f0f4f0; color: #4a6a4a; border: 1px solid #c8d8c8;
+            border-radius: 8px; padding: 9px 18px; font-size: 0.85rem; font-weight: 700;
+            cursor: pointer; font-family: 'Lato', sans-serif; transition: background 0.15s;
+        }
+        .btn-cancel-modal:hover { background: #e0ece0; }
+
+        .modal-edit-input {
+            width: 100%; padding: 8px 11px; border: 1.5px solid #c8d8c8; border-radius: 7px;
+            font-size: 0.92rem; font-family: 'Lato', sans-serif; color: #1a3a1a; background: #f8fbf8;
+            box-sizing: border-box; transition: border-color 0.15s;
+        }
+        .modal-edit-input:focus { outline: none; border-color: #3a9a3a; background: #fff; }
+        .modal-edit-select {
+            width: 100%; padding: 8px 11px; border: 1.5px solid #c8d8c8; border-radius: 7px;
+            font-size: 0.92rem; font-family: 'Lato', sans-serif; color: #1a3a1a; background: #f8fbf8; box-sizing: border-box;
+        }
+
+        .modal-status-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+        .modal-status-label {
+            display: inline-block; padding: 3px 12px; border-radius: 20px;
+            font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .modal-status-label.pending   { background: #fff3cd; color: #856404; }
+        .modal-status-label.confirmed { background: #d4edda; color: #155724; }
+        .modal-status-label.completed { background: #cce5ff; color: #004085; }
+        .modal-status-label.cancelled { background: #f8d7da; color: #721c24; }
+        .modal-status-label.active    { background: #d4edda; color: #155724; }
+        .modal-status-label.inactive  { background: #fff3cd; color: #856404; }
+        .modal-status-label.suspended { background: #f8d7da; color: #721c24; }
+        .modal-status-label.available   { background: #d4edda; color: #155724; }
+        .modal-status-label.rented      { background: #fff3cd; color: #856404; }
+        .modal-status-label.maintenance { background: #f8d7da; color: #721c24; }
+
+        .modal-avatar-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+        .modal-avatar-big {
+            width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 1.5rem; font-weight: 900; color: #fff; flex-shrink: 0;
+        }
+        .modal-avatar-big.av1 { background: linear-gradient(135deg,#2d7a2d,#5aba5a); }
+        .modal-avatar-big.av2 { background: linear-gradient(135deg,#1a6aaa,#4a9ada); }
+        .modal-avatar-big.av3 { background: linear-gradient(135deg,#8a3a1a,#da7a4a); }
+        .modal-avatar-big.av4 { background: linear-gradient(135deg,#6a1a8a,#aa5ada); }
+        .modal-avatar-big.av5 { background: linear-gradient(135deg,#1a5a5a,#4aaaaa); }
+        .modal-name-sub { font-size: 0.82rem; color: #7a907a; margin-top: 2px; }
+
+        .modal-harvester-thumb {
+            width: 90px; height: 58px; border-radius: 8px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .modal-harvester-thumb.green-bg  { background: #d4edda; }
+        .modal-harvester-thumb.red-bg    { background: #f8d7da; }
+        .modal-harvester-thumb.yellow-bg { background: #fff3cd; }
+        .modal-harvester-thumb.blue-bg   { background: #cce5ff; }
+
+        .toast {
+            position: fixed; bottom: 28px; right: 28px; background: #2d7a2d; color: #fff;
+            padding: 13px 22px; border-radius: 10px; font-size: 0.92rem; font-weight: 700;
+            font-family: 'Lato', sans-serif; box-shadow: 0 4px 20px rgba(30,70,30,0.25);
+            z-index: 2000; opacity: 0; transform: translateY(10px);
+            transition: opacity 0.25s, transform 0.25s; pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: none; }
+        .toast.toast-reject  { background: #c0392b; }
+        .toast.toast-pending { background: #e07b00; }
+
+        /* Topnav action buttons (replacing admin dropdown icon) */
+        .topnav-actions {
+            display: flex; align-items: center; gap: 8px; margin-left: auto;
+        }
+        .topnav-action-btn {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22);
+            color: #fff; border-radius: 8px; padding: 7px 14px; font-size: 0.84rem;
+            font-weight: 700; font-family: 'Lato', sans-serif; cursor: pointer; transition: background 0.15s;
+        }
+        .topnav-action-btn:hover { background: rgba(255,255,255,0.25); }
+    </style>
+</head>
+<body>
+
+<!-- ==================== LOGIN ==================== -->
+<div id="login-screen">
+    <div class="login-card">
+        <div class="login-logo">
+            <svg width="38" height="38" viewBox="0 0 36 36" fill="none">
+                <path d="M6 24 Q10 14 18 16 Q26 18 30 12" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <circle cx="12" cy="26" r="3" fill="#ffc107"/>
+                <circle cx="24" cy="24" r="3" fill="#ffc107"/>
+                <rect x="8" y="18" width="20" height="6" rx="2" fill="rgba(255,255,255,0.25)" stroke="#fff" stroke-width="1.2"/>
+            </svg>
+        </div>
+        <h1>HarvestHub</h1>
+        <span class="login-subtitle">Admin Portal</span>
+        <div class="login-badge">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 1L2 4v4c0 3.5 2.5 6 6 7 3.5-1 6-3.5 6-7V4L8 1z" stroke="currentColor" stroke-width="1.5"/></svg>
+            ADMIN ACCESS ONLY
+        </div>
+        <input class="login-field" type="email" id="loginUsername" placeholder="Admin Email" autocomplete="email">
+        <input class="login-field" type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+        <button class="login-btn" onclick="doLogin()">Log In</button>
+        <div class="login-error" id="loginError">Incorrect username or password.</div>
+        <div class="login-hint">Enter your admin email and password</div>
+    </div>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div id="app">
+<header class="topnav">
+    <div class="topnav-brand">
+        <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+            <path d="M6 24 Q10 14 18 16 Q26 18 30 12" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <circle cx="12" cy="26" r="3" fill="#ffc107"/>
+            <circle cx="24" cy="24" r="3" fill="#ffc107"/>
+            <rect x="8" y="18" width="20" height="6" rx="2" fill="rgba(255,255,255,0.2)" stroke="#fff" stroke-width="1.2"/>
+        </svg>
+        <span class="brand-name">Harvester Rental Admin</span>
+    </div>
+    <nav class="topnav-links"></nav>
+    <!-- Admin icon removed; Settings and Logout migrated here -->
+    <div class="topnav-actions">
+        <button class="topnav-action-btn" onclick="showPage('settings')">
+            <svg width="15" height="15" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 2v2M9 14v2M2 9h2M14 9h2M3.93 3.93l1.41 1.41M12.66 12.66l1.41 1.41M3.93 14.07l1.41-1.41M12.66 5.34l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Settings
+        </button>
+        <button class="topnav-action-btn" onclick="doLogout()">
+            <svg width="15" height="15" viewBox="0 0 18 18" fill="none"><path d="M7 3H3a1 1 0 00-1 1v10a1 1 0 001 1h4M12 12l4-3-4-3M16 9H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Log Out
+        </button>
+    </div>
+</header>
+
+<div class="layout">
+    <aside class="sidebar">
+        <nav class="sidebar-nav">
+            <button class="sidebar-link active" id="nav-dashboard" onclick="showPage('dashboard')">
+                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1" y="1" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="10" y="1" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="1" y="10" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="10" y="10" width="7" height="7" rx="1.5" fill="currentColor"/></svg></span>
+                Dashboard
+            </button>
+            <button class="sidebar-link" id="nav-bookings" onclick="showPage('bookings')">
+                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1" y="3" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 1v4M13 1v4M1 8h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+                Bookings
+            </button>
+            <button class="sidebar-link" id="nav-harvesters" onclick="showPage('harvesters')">
+                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="5" cy="13" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="13" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M2 13V7l3-4h6l3 4v1h1a1 1 0 011 1v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                Harvesters
+            </button>
+            <button class="sidebar-link" id="nav-customers" onclick="showPage('customers')">
+                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M2 17c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+                Customers
+            </button>
+            <button class="sidebar-link" id="nav-settings" onclick="showPage('settings')">
+                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 2v2M9 14v2M2 9h2M14 9h2M3.93 3.93l1.41 1.41M12.66 12.66l1.41 1.41M3.93 14.07l1.41-1.41M12.66 5.34l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+                Settings
+            </button>
+        </nav>
+    </aside>
+
+    <main class="main">
+
+        <!-- ===== DASHBOARD ===== -->
+        <div class="page-section active" id="page-dashboard">
+            <section class="stat-cards">
+                <div class="stat-card">
+                    <div class="stat-icon green"><svg width="26" height="26" viewBox="0 0 28 28" fill="none"><rect x="2" y="4" width="24" height="20" rx="3" stroke="#2d7a2d" stroke-width="2"/><path d="M8 2v4M20 2v4M2 11h24" stroke="#2d7a2d" stroke-width="2" stroke-linecap="round"/><rect x="7" y="15" width="4" height="4" rx="1" fill="#2d7a2d"/><rect x="13" y="15" width="4" height="4" rx="1" fill="#2d7a2d"/></svg></div>
+                    <div class="stat-info"><span class="stat-label">Total Bookings</span><span class="stat-value">128</span></div>
+                    <button class="stat-close" onclick="this.closest('.stat-card').style.display='none'">×</button>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><svg width="26" height="26" viewBox="0 0 28 28" fill="none"><circle cx="9" cy="22" r="3" stroke="#e07b00" stroke-width="2"/><circle cx="21" cy="22" r="3" stroke="#e07b00" stroke-width="2"/><path d="M2 22V14l4-8h10l4 6v2h2a2 2 0 012 2v4" stroke="#e07b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="stat-info"><span class="stat-label">Active Rentals</span><span class="stat-value">24</span></div>
+                    <button class="stat-close" onclick="this.closest('.stat-card').style.display='none'">×</button>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green2"><svg width="26" height="26" viewBox="0 0 28 28" fill="none"><circle cx="9" cy="22" r="3" stroke="#3a9a3a" stroke-width="2"/><circle cx="21" cy="22" r="3" stroke="#3a9a3a" stroke-width="2"/><path d="M2 22V14l4-8h10l4 6v2h2a2 2 0 012 2v4" stroke="#3a9a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 8v6M11 11h6" stroke="#3a9a3a" stroke-width="2" stroke-linecap="round"/></svg></div>
+                    <div class="stat-info"><span class="stat-label">Harvesters Available</span><span class="stat-value">15</span></div>
+                    <button class="stat-close" onclick="this.closest('.stat-card').style.display='none'">×</button>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon teal"><svg width="26" height="26" viewBox="0 0 28 28" fill="none"><path d="M8 4h4v4L10 10M16 4h4v4l-2 2" stroke="#2a8a7a" stroke-width="2" stroke-linecap="round"/><rect x="4" y="14" width="20" height="12" rx="2" stroke="#2a8a7a" stroke-width="2"/><path d="M10 19l2 2 6-4" stroke="#2a8a7a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="stat-info"><span class="stat-label">Upcoming Services</span><span class="stat-value">5</span></div>
+                    <button class="stat-close" onclick="this.closest('.stat-card').style.display='none'">×</button>
+                </div>
+            </section>
+            <div class="tables-row">
+                <div class="table-panel">
+                    <div class="panel-header green-header"><h2>Current Rentals</h2></div>
+                    <table class="data-table">
+                        <thead><tr><th>Customer</th><th>Harvester</th><th>Location</th><th>Rental Period</th></tr></thead>
+                        <tbody>
+                            <tr><td><div class="customer-cell"><div class="avatar av1"></div><span>Juan Dela Cruz</span></div></td><td>John Deere S780</td><td>Nueva Ecija</td><td>Jan 25 – Jan 30</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-panel">
+                    <div class="panel-header dark-header"><h2>Upcoming Bookings</h2></div>
+                    <table class="data-table">
+                        <thead><tr><th>Customer</th><th>Harvester</th><th>Start Date</th><th>Duration</th></tr></thead>
+                        <tbody>
+                            <tr><td><div class="customer-cell"><div class="avatar av2"></div><span>Maria Santos</span></div></td><td>Case IH 9250</td><td>Feb 1, 2026</td><td>4 Days</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== BOOKINGS ===== -->
+        <div class="page-section" id="page-bookings">
+            <div class="page-title-bar">
+                <div><h1 class="page-title">Bookings Management</h1><p class="page-subtitle">Track and manage all harvester rental bookings</p></div>
+                <button class="btn-primary">+ New Booking</button>
+            </div>
+            <div class="page-toolbar">
+                <div class="search-bar">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="#7a907a" stroke-width="1.5"/><path d="M10 10l4 4" stroke="#7a907a" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <input type="text" id="bookingSearch" placeholder="Search bookings..." oninput="filterTable('booking-tbody','bookingSearch','bookingStatusFilter')">
+                </div>
+                <div class="filters">
+                    <select id="bookingStatusFilter" onchange="filterTable('booking-tbody','bookingSearch','bookingStatusFilter')">
+                        <option>All Status</option><option>Pending</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option>
+                    </select>
+                    <select><option>All Dates</option><option>Today</option><option>This Week</option><option>This Month</option></select>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="full-table">
+                    <thead><tr><th>Booking ID</th><th>Renter</th><th>Harvester Type</th><th>Location</th><th>Start Date</th><th>End Date</th><th>Duration</th><th>Total Cost</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="booking-tbody">
+                        <tr data-search="id001 jamal jackson rice harvester salasa bugallon pangasinan pending">
+                            <td class="id-cell">id001</td>
+                            <td><div class="customer-cell"><div class="avatar av1"></div><span>Jamal Jackson</span></div></td>
+                            <td>Rice Harvester</td><td>Salasa bugallon, Pangasinan</td>
+                            <td>Jan 25, 2026</td><td>Jan 30, 2026</td><td>5 days</td>
+                            <td class="cost-cell">₱2,500</td>
+                            <td><span class="badge pending">Pending</span></td>
+                            <td><div class="action-group">
+                                <button class="btn-action" onclick="openBookingViewModal(this,{id:'id001',renter:'Jamal Jackson',avatarClass:'av1',harvester:'Rice Harvester',location:'Salasa bugallon, Pangasinan',start:'Jan 25, 2026',end:'Jan 30, 2026',duration:'5 days',cost:'₱2,500',status:'pending'})">View</button>
+                            </div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination"><button class="page-btn">← Previous</button><button class="page-btn active">1</button><button class="page-btn">Next →</button></div>
+        </div>
+
+        <!-- ===== HARVESTERS ===== -->
+        <div class="page-section" id="page-harvesters">
+            <div class="page-title-bar">
+                <div><h1 class="page-title">Harvester Fleet Management</h1><p class="page-subtitle">Manage and monitor your entire harvester fleet</p></div>
+                <button class="btn-primary">+ Add New Harvester</button>
+            </div>
+            <div class="page-toolbar">
+                <div class="search-bar">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="#7a907a" stroke-width="1.5"/><path d="M10 10l4 4" stroke="#7a907a" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <input type="text" id="harvesterSearch" placeholder="Search harvesters..." oninput="filterCards('harvester-grid','harvesterSearch','harvesterTypeFilter','harvesterStatusFilter')">
+                </div>
+                <div class="filters">
+                    <select id="harvesterTypeFilter" onchange="filterCards('harvester-grid','harvesterSearch','harvesterTypeFilter','harvesterStatusFilter')">
+                        <option>All Types</option><option>Combine Harvester</option><option>Rice Harvester</option><option>Corn Harvester</option><option>Sugarcane Harvester</option>
+                    </select>
+                    <select id="harvesterStatusFilter" onchange="filterCards('harvester-grid','harvesterSearch','harvesterTypeFilter','harvesterStatusFilter')">
+                        <option>All Status</option><option>Available</option><option>Rented</option><option>Maintenance</option>
+                    </select>
+                </div>
+            </div>
+            <div class="fleet-stats">
+                <div class="fleet-stat-chip available-chip"><span class="chip-dot"></span><span>15 Available</span></div>
+                <div class="fleet-stat-chip rented-chip"><span class="chip-dot"></span><span>24 In Use</span></div>
+                <div class="fleet-stat-chip maintenance-chip"><span class="chip-dot"></span><span>4 In Maintenance</span></div>
+            </div>
+            <div class="harvester-grid" id="harvester-grid">
+                <div class="harvester-card" data-search="john deere s780 combine harvester hv001 available">
+                    <div class="harvester-image">
+                        <div class="harvester-illustration green-machine">
+                            <svg width="100" height="70" viewBox="0 0 100 70" fill="none"><ellipse cx="28" cy="58" rx="12" ry="8" fill="#2d5a1a"/><ellipse cx="74" cy="58" rx="12" ry="8" fill="#2d5a1a"/><rect x="18" y="28" width="66" height="30" rx="5" fill="#3a8a1a"/><rect x="22" y="14" width="30" height="24" rx="3" fill="#3a8a1a"/><rect x="24" y="16" width="26" height="20" rx="2" fill="#87ceeb" opacity="0.7"/><rect x="10" y="40" width="14" height="10" rx="2" fill="#2d7a14"/><path d="M4 32 L12 20 L20 44 L4 44 Z" fill="#FFD600"/><circle cx="28" cy="58" r="7" fill="#1a3a0a" stroke="#4a7a2a" stroke-width="1.5"/><circle cx="74" cy="58" r="7" fill="#1a3a0a" stroke="#4a7a2a" stroke-width="1.5"/><circle cx="28" cy="58" r="3" fill="#2d5a1a"/><circle cx="74" cy="58" r="3" fill="#2d5a1a"/></svg>
+                        </div>
+                        <span class="status-badge available">Available</span>
+                    </div>
+                    <div class="harvester-info">
+                        <h3>John Deere S780</h3>
+                        <p class="harvester-type">Combine Harvester</p>
+                        <div class="specs">
+                            <div class="spec-item"><span class="spec-label">ID</span><span class="spec-value">HV001</span></div>
+                            <div class="spec-item"><span class="spec-label">Year</span><span class="spec-value">2022</span></div>
+                            <div class="spec-item"><span class="spec-label">Capacity</span><span class="spec-value">10,000 kg/hr</span></div>
+                            <div class="spec-item"><span class="spec-label">Rate</span><span class="spec-value">₱5,000/day</span></div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-action" onclick="openHarvesterViewModal({name:'John Deere S780',type:'Combine Harvester',id:'HV001',year:'2022',capacity:'10,000 kg/hr',rate:'₱5,000/day',status:'available',thumbClass:'green-bg'})">View Details</button>
+                            <button class="btn-action" onclick="openHarvesterEditModal({name:'John Deere S780',type:'Combine Harvester',id:'HV001',year:'2022',capacity:'10,000 kg/hr',rate:'₱5,000/day',status:'available'})">Edit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pagination"><button class="page-btn">← Previous</button><button class="page-btn active">1</button><button class="page-btn">Next →</button></div>
+        </div>
+
+        <!-- ===== CUSTOMERS ===== -->
+        <div class="page-section" id="page-customers">
+            <div class="page-title-bar">
+                <div><h1 class="page-title">Customer Management</h1><p class="page-subtitle">View and manage all registered customers</p></div>
+                <button class="btn-primary">+ Add New User</button>
+            </div>
+            <div class="page-toolbar">
+                <div class="search-bar">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="#7a907a" stroke-width="1.5"/><path d="M10 10l4 4" stroke="#7a907a" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <input type="text" id="customerSearch" placeholder="Search users..." oninput="filterTable('customer-tbody','customerSearch','customerStatusFilter')">
+                </div>
+                <div class="filters">
+                    <select id="customerTypeFilter" onchange="filterTable('customer-tbody','customerSearch','customerStatusFilter')">
+                        <option>All User Types</option><option>Renter</option><option>Owner</option><option>Admin</option>
+                    </select>
+                    <select id="customerStatusFilter" onchange="filterTable('customer-tbody','customerSearch','customerStatusFilter')">
+                        <option>All Status</option><option>Active</option><option>Inactive</option><option>Suspended</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="full-table">
+                    <thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Phone</th><th>User Type</th><th>Location</th><th>Join Date</th><th>Bookings</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="customer-tbody">
+                        <tr data-search="usr001 juan dela cruz juan@example.com nueva ecija renter active">
+                            <td class="id-cell">#USR001</td>
+                            <td><div class="customer-cell"><div class="avatar av1"></div><span>Juan Dela Cruz</span></div></td>
+                            <td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8fe5faeee1cfeaf7eee2ffe3eaa1ece0e2">[email&#160;protected]</a></td><td>+63 912 345 6789</td>
+                            <td><span class="user-badge renter">Renter</span></td>
+                            <td>Nueva Ecija</td><td>Jan 10, 2025</td><td>5</td>
+                            <td><span class="badge active">Active</span></td>
+                            <td><div class="action-group">
+                                <button class="btn-action" onclick="openCustomerViewModal({id:'#USR001',name:'Juan Dela Cruz',email:'juan@example.com',phone:'+63 912 345 6789',type:'Renter',location:'Nueva Ecija',joinDate:'Jan 10, 2025',bookings:'5',status:'Active',avatarClass:'av1'})">View</button>
+                                <button class="btn-action" onclick="openCustomerEditModal({id:'#USR001',name:'Juan Dela Cruz',email:'juan@example.com',phone:'+63 912 345 6789',type:'Renter',location:'Nueva Ecija',status:'Active'})">Edit</button>
+                            </div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination"><button class="page-btn">← Previous</button><button class="page-btn active">1</button><button class="page-btn">Next →</button></div>
+        </div>
+
+        <!-- ===== SETTINGS ===== -->
+        <div class="page-section" id="page-settings">
+            <div class="page-title-bar"><div><h1 class="page-title">Settings</h1><p class="page-subtitle">Configure platform preferences and system options</p></div></div>
+            <div class="settings-layout">
+                <aside class="settings-nav">
+                    <button class="settings-nav-link active" onclick="highlightSettingsNav(this)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M4 5h8M4 8h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>General</button>
+                    <button class="settings-nav-link" onclick="highlightSettingsNav(this)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M4 1v2M12 1v2M1 7h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Booking</button>
+                    <button class="settings-nav-link" onclick="highlightSettingsNav(this)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.5"/><circle cx="4" cy="10" r="1" fill="currentColor"/></svg>Payment</button>
+                    <button class="settings-nav-link" onclick="highlightSettingsNav(this)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a5 5 0 015 5v3l1.5 2h-13L3 9V6a5 5 0 015-5z" stroke="currentColor" stroke-width="1.5"/><path d="M6 13a2 2 0 004 0" stroke="currentColor" stroke-width="1.5"/></svg>Notifications</button>
+                    <button class="settings-nav-link" onclick="highlightSettingsNav(this)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 15h6M8 11v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>System</button>
+                    <button class="settings-nav-link" onclick="highlightSettingsNav(this)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L2 4v4c0 3.5 2.5 6 6 7 3.5-1 6-3.5 6-7V4L8 1z" stroke="currentColor" stroke-width="1.5"/></svg>Security</button>
+                </aside>
+                <div class="settings-content">
+                    <div class="settings-section">
+                        <div class="section-header"><h2>General Settings</h2><p>Basic platform configuration and contact information</p></div>
+                        <div class="settings-group">
+                            <div class="setting-item half"><label>Platform Name</label><input type="text" value="Harvester Booking Platform"></div>
+                            <div class="setting-item half"><label>Support Email</label><input type="email" value="support@harvester.com"></div>
+                            <div class="setting-item half"><label>Contact Phone</label><input type="tel" value="+63 2 1234 5678"></div>
+                            <div class="setting-item half"><label>Business Hours</label><input type="text" value="Monday - Saturday, 8:00 AM - 6:00 PM"></div>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <div class="section-header"><h2>Booking Settings</h2><p>Control how bookings are created and managed</p></div>
+                        <div class="settings-group">
+                            <div class="setting-item half"><label>Minimum Booking Duration (days)</label><input type="number" value="1"></div>
+                            <div class="setting-item half"><label>Maximum Booking Duration (days)</label><input type="number" value="30"></div>
+                            <div class="setting-item half"><label>Advance Booking Period (days)</label><input type="number" value="60"></div>
+                            <div class="setting-item half"><label>Cancellation Period (hours before)</label><input type="number" value="24"></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Auto-approve Bookings</span><span class="label-sub">Automatically confirm bookings without manual review</span></div><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Send Booking Confirmations</span><span class="label-sub">Email customers when bookings are confirmed</span></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <div class="section-header"><h2>Payment Settings</h2><p>Configure accepted payment methods and fee structures</p></div>
+                        <div class="settings-group">
+                            <div class="setting-item half"><label>Currency</label><select><option selected>PHP (₱)</option><option>USD ($)</option><option>EUR (€)</option></select></div>
+                            <div class="setting-item half"><label>Platform Fee (%)</label><input type="number" value="10" step="0.1"></div>
+                            <div class="setting-item half"><label>Security Deposit (%)</label><input type="number" value="20" step="0.1"></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Accept Credit Cards</span><span class="label-sub">Visa, Mastercard, and other major cards</span></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Accept Bank Transfers</span><span class="label-sub">Direct bank and online banking transfers</span></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Accept GCash Payments</span><span class="label-sub">Enable GCash mobile wallet payments</span></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <div class="section-header"><h2>Notification Settings</h2><p>Manage how and when alerts are sent</p></div>
+                        <div class="settings-group">
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Email Notifications</span><span class="label-sub">Send updates via email</span></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">SMS Notifications</span><span class="label-sub">Send SMS alerts to users</span></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Push Notifications</span><span class="label-sub">Browser and app push alerts</span></div><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Notify on New Bookings</span><span class="label-sub">Alert admin on every new booking</span></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Notify on Cancellations</span><span class="label-sub">Alert admin when bookings are cancelled</span></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <div class="section-header"><h2>System Settings</h2><p>Regional and system-level preferences</p></div>
+                        <div class="settings-group">
+                            <div class="setting-item half"><label>Timezone</label><select><option selected>Asia/Manila (GMT+8)</option><option>UTC</option><option>Asia/Tokyo</option></select></div>
+                            <div class="setting-item half"><label>Date Format</label><select><option selected>MM/DD/YYYY</option><option>DD/MM/YYYY</option><option>YYYY-MM-DD</option></select></div>
+                            <div class="setting-item half"><label>Language</label><select><option selected>English</option><option>Filipino</option><option>Español</option></select></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Maintenance Mode</span><span class="label-sub">Temporarily disable public access</span></div><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Enable Debug Mode</span><span class="label-sub">Show detailed error logs</span></div><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <div class="section-header"><h2>Security Settings</h2><p>Authentication and access control configuration</p></div>
+                        <div class="settings-group">
+                            <div class="setting-item half"><label>Session Timeout (minutes)</label><input type="number" value="30"></div>
+                            <div class="setting-item half"><label>Password Minimum Length</label><input type="number" value="8"></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Require Two-Factor Authentication</span><span class="label-sub">Enforce 2FA for all admin accounts</span></div><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+                            <div class="setting-item toggle-item"><div class="toggle-label"><span class="label-main">Force Password Reset (90 days)</span><span class="label-sub">Require password change every 90 days</span></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                        </div>
+                    </div>
+                    <div class="settings-actions">
+                        <button class="btn-secondary">Reset to Defaults</button>
+                        <button class="btn-primary">Save All Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+</div><!-- end #app -->
+
+<!-- ===== BOOKING VIEW MODAL ===== -->
+<div class="modal-overlay" id="bookingViewModal" onclick="closeModalOnOverlay(event,'bookingViewModal')">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <h3 id="bmv-id">Booking Details</h3>
+                <span class="modal-badge" id="bmv-status-badge">Pending</span>
+            </div>
+            <button class="modal-close" onclick="closeModal('bookingViewModal')">&#x2715;</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-fields-grid">
+                <div class="modal-field"><label>Renter</label><div class="modal-val" id="bmv-renter"></div></div>
+                <div class="modal-field"><label>Harvester Type</label><div class="modal-val" id="bmv-harvester"></div></div>
+                <div class="modal-field"><label>Location</label><div class="modal-val" id="bmv-location"></div></div>
+                <div class="modal-field"><label>Total Cost</label><div class="modal-val" id="bmv-cost"></div></div>
+                <div class="modal-field"><label>Start Date</label><div class="modal-val" id="bmv-start"></div></div>
+                <div class="modal-field"><label>End Date</label><div class="modal-val" id="bmv-end"></div></div>
+                <div class="modal-field"><label>Duration</label><div class="modal-val" id="bmv-duration"></div></div>
+                <div class="modal-field"><label>Current Status</label>
+                    <div class="modal-status-row"><span class="modal-status-label pending" id="bmv-status-label">Pending</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel-modal" onclick="closeModal('bookingViewModal')">Close</button>
+            <button class="btn-pending-modal" onclick="setBookingStatus('pending')">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Pending
+            </button>
+            <button class="btn-approve-modal" onclick="setBookingStatus('approved')">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Approve
+            </button>
+            <button class="btn-reject-modal" onclick="setBookingStatus('rejected')">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Reject
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== HARVESTER VIEW MODAL ===== -->
+<div class="modal-overlay" id="harvesterViewModal" onclick="closeModalOnOverlay(event,'harvesterViewModal')">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <h3>Harvester Details</h3>
+                <span class="modal-badge" id="hvm-status-badge">Available</span>
+            </div>
+            <button class="modal-close" onclick="closeModal('harvesterViewModal')">&#x2715;</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-avatar-row">
+                <div class="modal-harvester-thumb green-bg" id="hvm-thumb">
+                    <svg width="70" height="50" viewBox="0 0 100 70" fill="none"><ellipse cx="28" cy="58" rx="12" ry="8" fill="#2d5a1a"/><ellipse cx="74" cy="58" rx="12" ry="8" fill="#2d5a1a"/><rect x="18" y="28" width="66" height="30" rx="5" fill="#3a8a1a"/><rect x="22" y="14" width="30" height="24" rx="3" fill="#3a8a1a"/><rect x="24" y="16" width="26" height="20" rx="2" fill="#87ceeb" opacity="0.7"/><circle cx="28" cy="58" r="7" fill="#1a3a0a" stroke="#4a7a2a" stroke-width="1.5"/><circle cx="74" cy="58" r="7" fill="#1a3a0a" stroke="#4a7a2a" stroke-width="1.5"/></svg>
+                </div>
+                <div>
+                    <div style="font-size:1.08rem;font-weight:700;color:#1a3a1a;" id="hvm-name">John Deere S780</div>
+                    <div class="modal-name-sub" id="hvm-type">Combine Harvester</div>
+                </div>
+            </div>
+            <hr class="modal-divider">
+            <div class="modal-fields-grid">
+                <div class="modal-field"><label>Harvester ID</label><div class="modal-val" id="hvm-id"></div></div>
+                <div class="modal-field"><label>Year</label><div class="modal-val" id="hvm-year"></div></div>
+                <div class="modal-field"><label>Capacity</label><div class="modal-val" id="hvm-capacity"></div></div>
+                <div class="modal-field"><label>Daily Rate</label><div class="modal-val" id="hvm-rate"></div></div>
+                <div class="modal-field"><label>Status</label>
+                    <div class="modal-status-row"><span class="modal-status-label available" id="hvm-status-label">Available</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel-modal" onclick="closeModal('harvesterViewModal')">Close</button>
+            <button class="btn-approve-modal" onclick="closeModal('harvesterViewModal');showToast('Harvester details noted.')">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== HARVESTER EDIT MODAL ===== -->
+<div class="modal-overlay" id="harvesterEditModal" onclick="closeModalOnOverlay(event,'harvesterEditModal')">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Edit Harvester</h3>
+            <button class="modal-close" onclick="closeModal('harvesterEditModal')">&#x2715;</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-fields-grid">
+                <div class="modal-field"><label>Name</label><input class="modal-edit-input" id="hem-name" type="text"></div>
+                <div class="modal-field"><label>Type</label>
+                    <select class="modal-edit-select" id="hem-type">
+                        <option>Combine Harvester</option><option>Rice Harvester</option><option>Corn Harvester</option><option>Sugarcane Harvester</option>
+                    </select>
+                </div>
+                <div class="modal-field"><label>Year</label><input class="modal-edit-input" id="hem-year" type="number"></div>
+                <div class="modal-field"><label>Capacity</label><input class="modal-edit-input" id="hem-capacity" type="text" placeholder="e.g. 10,000 kg/hr"></div>
+                <div class="modal-field"><label>Daily Rate (₱)</label><input class="modal-edit-input" id="hem-rate" type="text" placeholder="e.g. 5,000"></div>
+                <div class="modal-field"><label>Status</label>
+                    <select class="modal-edit-select" id="hem-status">
+                        <option value="available">Available</option><option value="rented">Rented</option><option value="maintenance">Maintenance</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel-modal" onclick="closeModal('harvesterEditModal')">Cancel</button>
+            <button class="btn-approve-modal" onclick="saveHarvesterEdit()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== CUSTOMER VIEW MODAL ===== -->
+<div class="modal-overlay" id="customerViewModal" onclick="closeModalOnOverlay(event,'customerViewModal')">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <h3>Customer Details</h3>
+                <span class="modal-badge" id="cvm-status-badge">Active</span>
+            </div>
+            <button class="modal-close" onclick="closeModal('customerViewModal')">&#x2715;</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-avatar-row">
+                <div class="modal-avatar-big av1" id="cvm-avatar">J</div>
+                <div>
+                    <div style="font-size:1.08rem;font-weight:700;color:#1a3a1a;" id="cvm-name">Juan Dela Cruz</div>
+                    <div class="modal-name-sub" id="cvm-sub-id">#USR001</div>
+                </div>
+            </div>
+            <hr class="modal-divider">
+            <div class="modal-fields-grid">
+                <div class="modal-field"><label>Email</label><div class="modal-val" id="cvm-email"></div></div>
+                <div class="modal-field"><label>Phone</label><div class="modal-val" id="cvm-phone"></div></div>
+                <div class="modal-field"><label>User Type</label><div class="modal-val" id="cvm-type"></div></div>
+                <div class="modal-field"><label>Location</label><div class="modal-val" id="cvm-location"></div></div>
+                <div class="modal-field"><label>Join Date</label><div class="modal-val" id="cvm-joindate"></div></div>
+                <div class="modal-field"><label>Total Bookings</label><div class="modal-val" id="cvm-bookings"></div></div>
+                <div class="modal-field"><label>Status</label>
+                    <div class="modal-status-row"><span class="modal-status-label active" id="cvm-status-label">Active</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel-modal" onclick="closeModal('customerViewModal')">Close</button>
+            <button class="btn-approve-modal" onclick="closeModal('customerViewModal')">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== CUSTOMER EDIT MODAL ===== -->
+<div class="modal-overlay" id="customerEditModal" onclick="closeModalOnOverlay(event,'customerEditModal')">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Edit Customer</h3>
+            <button class="modal-close" onclick="closeModal('customerEditModal')">&#x2715;</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-fields-grid">
+                <div class="modal-field"><label>Full Name</label><input class="modal-edit-input" id="cem-name" type="text"></div>
+                <div class="modal-field"><label>Email</label><input class="modal-edit-input" id="cem-email" type="email"></div>
+                <div class="modal-field"><label>Phone</label><input class="modal-edit-input" id="cem-phone" type="tel"></div>
+                <div class="modal-field"><label>Location</label><input class="modal-edit-input" id="cem-location" type="text"></div>
+                <div class="modal-field"><label>User Type</label>
+                    <select class="modal-edit-select" id="cem-type">
+                        <option>Renter</option><option>Owner</option><option>Admin</option>
+                    </select>
+                </div>
+                <div class="modal-field"><label>Status</label>
+                    <select class="modal-edit-select" id="cem-status">
+                        <option>Active</option><option>Inactive</option><option>Suspended</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel-modal" onclick="closeModal('customerEditModal')">Cancel</button>
+            <button class="btn-approve-modal" onclick="saveCustomerEdit()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TOAST NOTIFICATION ===== -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp }                              from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged,
+           signInWithEmailAndPassword, signOut }        from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js';
+
+  // ===== FIREBASE INIT =====
+  const firebaseConfig = {
+    apiKey:            "AIzaSyDE4oLipbxiVtb4PtTVdcXsQaJO6wxSkF0",
+    authDomain:        "harvesthub-25071.firebaseapp.com",
+    projectId:         "harvesthub-25071",
+    storageBucket:     "harvesthub-25071.firebasestorage.app",
+    messagingSenderId: "727328652891",
+    appId:             "1:727328652891:web:76b8fe7fe3f55c5040097e",
+    measurementId:     "G-S6P5BJ5V37"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const ADMIN_UID = '3YLY0Mg1fxU1kV5f2TZzZm9ga1h2';
+
+  // Hide both screens while Firebase checks session
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+
+  // Auto show/hide based on auth state
+  onAuthStateChanged(auth, user => {
+    if (user && user.uid === ADMIN_UID) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+    } else {
+      if (user) signOut(auth); // signed in but not admin — force sign out
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+    }
+  });
+
+  // ===== LOGIN =====
+  window.doLogin = async function() {
+    const email = document.getElementById('loginUsername').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
+    const err   = document.getElementById('loginError');
+    const btn   = document.querySelector('.login-btn');
+
+    if (!email || !pass) {
+      err.textContent = 'Please enter your email and password.';
+      err.style.display = 'block';
+      return;
+    }
+
+    btn.textContent = 'Logging in…';
+    btn.disabled = true;
+    err.style.display = 'none';
+
+    try {
+      const credential = await signInWithEmailAndPassword(auth, email, pass);
+
+      if (credential.user.uid !== ADMIN_UID) {
+        await signOut(auth);
+        err.textContent = 'Access denied. Admins only.';
+        err.style.display = 'block';
+        document.getElementById('loginPassword').value = '';
+        btn.textContent = 'Log In';
+        btn.disabled = false;
+        return;
+      }
+      // onAuthStateChanged handles showing the dashboard
+
+    } catch (e) {
+      const messages = {
+        'auth/invalid-email':      'Invalid email address.',
+        'auth/user-not-found':     'No admin account found with that email.',
+        'auth/wrong-password':     'Incorrect password.',
+        'auth/invalid-credential': 'Incorrect email or password.',
+        'auth/too-many-requests':  'Too many attempts. Please try again later.',
+      };
+      err.textContent = messages[e.code] || 'Login failed. Please try again.';
+      err.style.display = 'block';
+      document.getElementById('loginPassword').value = '';
+      btn.textContent = 'Log In';
+      btn.disabled = false;
+    }
+  };
+
+  // ===== LOGOUT =====
+  window.doLogout = async function() {
+    await signOut(auth);
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginError').style.display = 'none';
+    document.querySelector('.login-btn').textContent = 'Log In';
+    document.querySelector('.login-btn').disabled = false;
+  };
+
+  // ===== ENTER KEY =====
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
+      window.doLogin();
+    }
+  });
+
+  // ===== NAVIGATION =====
+  window.showPage = function(page) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('page-' + page);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    const nav = document.getElementById('nav-' + page);
+    if (nav) nav.classList.add('active');
+  };
+
+  // ===== SETTINGS NAV =====
+  window.highlightSettingsNav = function(el) {
+    document.querySelectorAll('.settings-nav-link').forEach(l => l.classList.remove('active'));
+    el.classList.add('active');
+  };
+
+</script>
+<script>
+// ===== MODAL HELPERS =====
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalOnOverlay(e, id) { if (e.target === e.currentTarget) closeModal(id); }
+
+// ===== TOAST =====
+function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (type ? ' toast-' + type : '');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ===== BOOKING MODAL =====
+let _activeBookingRow = null;
+
+function openBookingViewModal(btn, data) {
+    _activeBookingRow = btn.closest('tr');
+    document.getElementById('bmv-id').textContent = 'Booking ' + data.id;
+    document.getElementById('bmv-renter').textContent = data.renter;
+    document.getElementById('bmv-harvester').textContent = data.harvester;
+    document.getElementById('bmv-location').textContent = data.location;
+    document.getElementById('bmv-cost').textContent = data.cost;
+    document.getElementById('bmv-start').textContent = data.start;
+    document.getElementById('bmv-end').textContent = data.end;
+    document.getElementById('bmv-duration').textContent = data.duration;
+    const sl = document.getElementById('bmv-status-label');
+    sl.className = 'modal-status-label ' + data.status;
+    sl.textContent = cap(data.status);
+    document.getElementById('bmv-status-badge').textContent = cap(data.status);
+    openModal('bookingViewModal');
+}
+
+function setBookingStatus(action) {
+    const map = {
+        approved: { cls: 'confirmed', label: 'Confirmed', toast: '✔ Booking Approved',      type: '' },
+        pending:  { cls: 'pending',   label: 'Pending',   toast: '⏳ Status set to Pending', type: 'pending' },
+        rejected: { cls: 'cancelled', label: 'Cancelled', toast: '✖ Booking Rejected',       type: 'reject' }
+    };
+    const s = map[action]; if (!s) return;
+    const sl = document.getElementById('bmv-status-label');
+    sl.className = 'modal-status-label ' + s.cls;
+    sl.textContent = s.label;
+    document.getElementById('bmv-status-badge').textContent = s.label;
+    if (_activeBookingRow) {
+        const badge = _activeBookingRow.querySelector('.badge');
+        if (badge) { badge.className = 'badge ' + s.cls; badge.textContent = s.label; }
+    }
+    closeModal('bookingViewModal');
+    showToast(s.toast, s.type);
+}
+
+// ===== HARVESTER MODALS =====
+function openHarvesterViewModal(data) {
+    document.getElementById('hvm-name').textContent = data.name;
+    document.getElementById('hvm-type').textContent = data.type;
+    document.getElementById('hvm-id').textContent = data.id;
+    document.getElementById('hvm-year').textContent = data.year;
+    document.getElementById('hvm-capacity').textContent = data.capacity;
+    document.getElementById('hvm-rate').textContent = data.rate;
+    const sl = document.getElementById('hvm-status-label');
+    sl.className = 'modal-status-label ' + data.status;
+    sl.textContent = cap(data.status);
+    document.getElementById('hvm-status-badge').textContent = cap(data.status);
+    if (data.thumbClass) document.getElementById('hvm-thumb').className = 'modal-harvester-thumb ' + data.thumbClass;
+    openModal('harvesterViewModal');
+}
+
+function openHarvesterEditModal(data) {
+    document.getElementById('hem-name').value = data.name;
+    document.getElementById('hem-year').value = data.year;
+    document.getElementById('hem-capacity').value = data.capacity;
+    document.getElementById('hem-rate').value = data.rate;
+    setSelect('hem-type', data.type);
+    setSelect('hem-status', data.status);
+    openModal('harvesterEditModal');
+}
+
+function saveHarvesterEdit() {
+    closeModal('harvesterEditModal');
+    showToast('✔ Harvester updated successfully');
+}
+
+// ===== CUSTOMER MODALS =====
+function openCustomerViewModal(data) {
+    document.getElementById('cvm-avatar').textContent = data.name.charAt(0).toUpperCase();
+    document.getElementById('cvm-avatar').className = 'modal-avatar-big ' + data.avatarClass;
+    document.getElementById('cvm-name').textContent = data.name;
+    document.getElementById('cvm-sub-id').textContent = data.id;
+    document.getElementById('cvm-email').textContent = data.email;
+    document.getElementById('cvm-phone').textContent = data.phone;
+    document.getElementById('cvm-type').textContent = data.type;
+    document.getElementById('cvm-location').textContent = data.location;
+    document.getElementById('cvm-joindate').textContent = data.joinDate;
+    document.getElementById('cvm-bookings').textContent = data.bookings;
+    const sl = document.getElementById('cvm-status-label');
+    const sc = data.status === 'Active' ? 'active' : data.status === 'Inactive' ? 'inactive' : 'suspended';
+    sl.className = 'modal-status-label ' + sc;
+    sl.textContent = data.status;
+    document.getElementById('cvm-status-badge').textContent = data.status;
+    openModal('customerViewModal');
+}
+
+function openCustomerEditModal(data) {
+    document.getElementById('cem-name').value = data.name;
+    document.getElementById('cem-email').value = data.email;
+    document.getElementById('cem-phone').value = data.phone;
+    document.getElementById('cem-location').value = data.location;
+    setSelect('cem-type', data.type);
+    setSelect('cem-status', data.status);
+    openModal('customerEditModal');
+}
+
+function saveCustomerEdit() {
+    closeModal('customerEditModal');
+    showToast('✔ Customer updated successfully');
+}
+
+// ===== SEARCH / FILTER =====
+function filterTable(tbodyId, searchId, statusFilterId) {
+    const tbody = document.getElementById(tbodyId); if (!tbody) return;
+    const query = document.getElementById(searchId).value.toLowerCase();
+    const statusEl = statusFilterId ? document.getElementById(statusFilterId) : null;
+    const statusVal = statusEl ? statusEl.value : '';
+
+    tbody.querySelectorAll('tr').forEach(row => {
+        const text = (row.dataset.search || row.textContent).toLowerCase();
+        let show = text.includes(query);
+        if (show && statusVal && statusVal !== 'All Status' && statusVal !== 'All User Types') {
+            show = text.includes(statusVal.toLowerCase());
+        }
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+function filterCards(gridId, searchId, typeFilterId, statusFilterId) {
+    const grid = document.getElementById(gridId); if (!grid) return;
+    const query = document.getElementById(searchId).value.toLowerCase();
+    const typeVal   = typeFilterId   ? document.getElementById(typeFilterId).value   : '';
+    const statusVal = statusFilterId ? document.getElementById(statusFilterId).value : '';
+
+    grid.querySelectorAll('.harvester-card').forEach(card => {
+        const text = (card.dataset.search || card.textContent).toLowerCase();
+        let show = text.includes(query);
+        if (show && typeVal   && typeVal   !== 'All Types')  show = text.includes(typeVal.toLowerCase());
+        if (show && statusVal && statusVal !== 'All Status') show = text.includes(statusVal.toLowerCase());
+        card.style.display = show ? '' : 'none';
+    });
+}
+
+// ===== UTILS =====
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+function setSelect(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    for (let o of el.options) {
+        if (o.value === val || o.text === val) { o.selected = true; return; }
+    }
+}
+</script>
+</body>
+</html>
